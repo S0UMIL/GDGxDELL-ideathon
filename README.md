@@ -125,6 +125,10 @@ Running LLaMA3 locally on CPU averages 30-60 seconds per query. Production
 deployment would require GPU inference or a faster model like Mistral 7B.
 
 ---
+> **Note:** The `/data` folder is not included in this repository 
+> as it contains demo-specific content. Add your own `.txt` or 
+> `.pdf` files to the `/data` folder and run `python ingest.py` 
+> to build the knowledge base.
 
 ## File Structure
 ```
