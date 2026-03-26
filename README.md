@@ -92,6 +92,9 @@ into 2 sub-questions consistently improved retrieval coverage.
 Added a Chat memory to the existing system of previous 2 chats, ensuring the user
 can ask follow up questions with relevant answers.
 
+**6. Response latency**
+Running LLaMA3.2 locally on GPU averages very less time per query.
+
 ## Known Demerits / Limitations
 
 **1. Small knowledge base**
@@ -118,10 +121,6 @@ embedding model is used.
 The problem statement mentions Confluence as a key source. This prototype 
 simulates Confluence content via text files but does not implement actual 
 Confluence API scraping.
-
-**6. Response latency**
-Running LLaMA3 locally on CPU averages 30-60 seconds per query. Production 
-deployment would require GPU inference or a faster model like Mistral 7B.
 
 ---
 > **Note:** The `/data` folder is not included in this repository 
