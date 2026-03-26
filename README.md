@@ -92,7 +92,7 @@ into 2 sub-questions consistently improved retrieval coverage.
 Added a Chat memory to the existing system of previous 2 chats, ensuring the user
 can ask follow up questions with relevant answers.
 
-**6. Response latency**
+**7. Response latency**
 Running LLaMA3.2 locally on GPU averages very less time per query.
 
 ## Known Demerits / Limitations
