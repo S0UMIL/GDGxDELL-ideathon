@@ -88,6 +88,10 @@ Added the Planning Agent after observing that single-query FAISS search
 missed relevant chunks when queries contained multiple intents. Decomposing 
 into 2 sub-questions consistently improved retrieval coverage.
 
+**6. Chat memory**
+Added a Chat memory to the existing system of previous 2 chats, ensuring the user
+can ask follow up questions with relevant answers.
+
 ## Known Demerits / Limitations
 
 **1. Small knowledge base**
@@ -95,32 +99,27 @@ The prototype uses manually created demo data with ~15 chunks. Real-world
 performance would require hundreds of documents and a larger vector store 
 like Pinecone or Weaviate.
 
-**2. No persistent chat memory**
-Each query is processed independently. The system has no memory of previous 
-questions in the same session — follow-up questions like "tell me more about 
-that" don't work.
-
-**3. LLaMA3 hallucination risk on edge cases**
+**2. LLaMA3 hallucination risk on edge cases**
 Despite the "Use ONLY context" prompt instruction, LLaMA3 occasionally 
 supplements answers with its own training knowledge when retrieved context 
 is thin. A more aggressive prompt or a smaller, more instruction-tuned model 
 would reduce this.
 
-**4. Confidence scoring is approximate**
+**3. Confidence scoring is approximate**
 FAISS L2 distance to confidence conversion (1 - score/2.0) is a heuristic, 
 not a calibrated probability. True confidence scoring would require a 
 re-ranker model like cross-encoder/ms-marco-MiniLM.
 
-**5. Single language support**
+**4. Single language support**
 Currently only handles English queries and documents. No multilingual 
 embedding model is used.
 
-**6. No Confluence integration**
+**5. No Confluence integration**
 The problem statement mentions Confluence as a key source. This prototype 
 simulates Confluence content via text files but does not implement actual 
 Confluence API scraping.
 
-**7. Response latency**
+**6. Response latency**
 Running LLaMA3 locally on CPU averages 30-60 seconds per query. Production 
 deployment would require GPU inference or a faster model like Mistral 7B.
 
