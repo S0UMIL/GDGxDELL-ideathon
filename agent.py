@@ -73,9 +73,11 @@ def retrieval_agent(sub_questions, vectorstore, llm):#this agent is for our over
 
     if avg_confidence >= 0.50:# best case scenario
         print("[Retrieval Agent] High confidence — proceeding to synthesis")
+        new_confidence = max([c["confidence"] / 100 for c in all_chunks]) if all_chunks else 0
+        best_confidence= max(avg_confidence,new_confidence)
         return {
             "chunks": all_chunks,
-            "confidence": round(avg_confidence * 100, 1),
+            "confidence": round(best_confidence * 100, 1),
             "status": "success"
         }
 
