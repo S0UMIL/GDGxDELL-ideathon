@@ -1,7 +1,6 @@
 import streamlit as st
 from pipeline import run_pipeline
 
-# Page config
 st.set_page_config(
     page_title="Dell's Right Hand",
     page_icon="🤖",
@@ -9,13 +8,13 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Initialize session state
 if "messages" not in st.session_state:
     st.session_state.messages = []
-if "processing" not in st.session_state:
-    st.session_state.processing = False
+if "input_key" not in st.session_state:
+    st.session_state.input_key = 0
+if "pending_query" not in st.session_state:
+    st.session_state.pending_query = None
 
-# Custom CSS for dark theme
 st.markdown("""
 <style>
     body { background-color: #0d1117; color: #c9d1d9; }
@@ -27,10 +26,10 @@ st.markdown("""
     .user-bubble { background-color: #0b5394; color: white; padding: 12px 16px; border-radius: 12px; margin: 8px 0 8px auto; width: fit-content; max-width: 75%; }
     .assistant-bubble { background-color: #37474f; color: #eceff1; padding: 12px 16px; border-radius: 12px; margin: 8px 0 8px 0; width: fit-content; max-width: 75%; }
     .metadata { font-size: 11px; color: #8b949e; margin-top: 6px; margin-left: 4px; }
+    .input-hint { font-size: 11px; color: #8b949e; margin-top: 4px; text-align: right; }
 </style>
 """, unsafe_allow_html=True)
 
-# Title
 st.markdown("""
 <div class="title-section">
     <p class="main-title">Dell's Right Hand</p>
@@ -38,7 +37,6 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Display chat history
 for message in st.session_state.messages:
     if message["role"] == "user":
         st.markdown(f'<div class="user-bubble">{message["content"]}</div>', unsafe_allow_html=True)
@@ -47,33 +45,36 @@ for message in st.session_state.messages:
         metadata = f"Confidence: {message.get('confidence', 'N/A')}% | Status: {message.get('status', 'N/A')} | Sources: {message.get('sources', 'N/A')}"
         st.markdown(f'<div class="metadata">{metadata}</div>', unsafe_allow_html=True)
 
-# Input section
-col1, col2 = st.columns([0.85, 0.15], gap="small")
+def handle_enter():
+    val = st.session_state[f"user_input_{st.session_state.input_key}"]
+    if val.strip():
+        st.session_state.pending_query = val.strip()
+        st.session_state.input_key += 1
 
-with col1:
-    user_input = st.text_input("Ask a question...", placeholder="Type here...", label_visibility="collapsed", key="user_input")
+st.text_input(
+    "Ask a question...",
+    placeholder="Type your question and press Enter...",
+    label_visibility="collapsed",
+    key=f"user_input_{st.session_state.input_key}",
+    on_change=handle_enter
+)
 
-with col2:
-    submit_button = st.button("Send", use_container_width=True)
+st.markdown('<div class="input-hint">Press Enter to send</div>', unsafe_allow_html=True)
 
-# Handle submission
-if submit_button and user_input and not st.session_state.processing:
-    st.session_state.processing = True
-    
-    # Add user message
-    st.session_state.messages.append({"role": "user", "content": user_input})
-    
+if st.session_state.pending_query:
+    query = st.session_state.pending_query
+    st.session_state.pending_query = None
+
+    st.session_state.messages.append({"role": "user", "content": query})
+
     try:
-        # Call pipeline
-        response = run_pipeline(user_input)
-        
-        # Add assistant message
+        response = run_pipeline(query)
         st.session_state.messages.append({
             "role": "assistant",
             "content": response.get("answer", "No response"),
             "confidence": response.get("confidence", 0),
             "status": response.get("status", "Complete"),
-            "sources": response.get("sources", "N/A")
+            "sources": ", ".join(response.get("sources", [])) or "N/A"
         })
     except Exception as e:
         st.session_state.messages.append({
@@ -83,6 +84,4 @@ if submit_button and user_input and not st.session_state.processing:
             "status": "Error",
             "sources": "N/A"
         })
-    finally:
-        st.session_state.processing = False
-        st.rerun()
+    st.rerun()
